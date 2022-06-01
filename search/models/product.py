@@ -12,3 +12,9 @@ class Product:
             'price': self.price,
             'url': self.url
         }
+
+
+
+
+
+
