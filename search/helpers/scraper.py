@@ -1,10 +1,13 @@
-import requests, lxml
+import requests, lxml, time
+from selenium import webdriver
 from bs4 import BeautifulSoup
 from models.product import Product
 from helpers.helper import create_jumia_search_url, create_konga_search_url
 
 
 
+
+DRIVER_PATH = '/usr/local/bin/chromedriver'
 http_headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'
 }
@@ -59,23 +62,33 @@ def scrape_jumia_page(page_url: str):
 def scrape_konga_page(page_url: str):
     count = 0
     products_list = []
-    soup = get_webpage(page_url)
-    products_catalog = []
+    driver = webdriver.Chrome(executable_path=DRIVER_PATH)
+    driver.get(page_url)
+    time.sleep(8)
 
-    if soup.find('main', id = 'mainContent') != None:
-        products_catalog =  soup.find('main', id = 'mainContent').select('section:nth-of-type(3) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > ul:nth-of-type(1) > li')
+    try:
+        products_section = driver.find_element_by_id('mainContent')
+        products_catalog = products_section.find_elements_by_css_selector('section:nth-of-type(3) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > ul:nth-of-type(1) > li')
 
-    for li in products_catalog:
-        url = li.select('div > div > div > a')[0].attrs['href']
-        image_url = li.select('div > div > div:nth-of-type(1) > a:nth-of-type(1) > picture')[0].find('img').attrs['data-src']
-        name = li.select('div > div > div:nth-of-type(2) > a:nth-of-type(1) > div:nth-of-type(1) > h3')[0].text
-        price = li.select('div > div > div:nth-of-type(2) > a:nth-of-type(1) > div:nth-of-type(2) > span')[0].text
+        for li in products_catalog:
+            url = li.find_element_by_css_selector('div > div > div > a').get_attribute('href')
+            image_url = li.find_element_by_css_selector('div > div > div:nth-of-type(1) > a:nth-of-type(1) > picture').find_element_by_tag_name('img').get_attribute('data-src')
+            name = li.find_element_by_css_selector('div > div > div:nth-of-type(2) > a:nth-of-type(1) > div:nth-of-type(1) > h3').text
+            price = li.find_element_by_css_selector('div > div > div:nth-of-type(2) > a:nth-of-type(1) > div:nth-of-type(2) > span').text
 
-        product = Product(name, image_url, url, price).get_product()
-        products_list.append(product)
-        count += 1
+            product = Product(name, image_url, url, price).get_product()
+            products_list.append(product)
+            count += 1
     
+    except TypeError:
+        driver.quit()
+        pass
+    driver.quit()
+
     return [products_list, count]
+
+
+
 
    
 def get_products(word: str, price_range: str):
@@ -84,6 +97,7 @@ def get_products(word: str, price_range: str):
 
     products = konga_data[0] + jumia_data[0]
     products_count = konga_data[1] + jumia_data[1]
+
     return [products, products_count]
 
 
