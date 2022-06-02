@@ -1,21 +1,27 @@
 import requests, lxml, time
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from models.product import Product
 from helpers.helper import create_jumia_search_url, create_konga_search_url
 
 
 
-
-DRIVER_PATH = '/usr/local/bin/chromedriver'
 http_headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36'
 }
 
+options = Options()
+options.add_argument("--headless")
+options.add_argument("--no-sandbox")
+options.add_argument("--window-size=1920,1200")
+
+
 def get_webpage(url: str):
-    HTML = requests.get(url, headers = http_headers)
+    HTML = requests.get(url, headers=http_headers)
     soup = BeautifulSoup(HTML.text, 'lxml')
     return soup
+
 
 def scrape_jumia_page(page_url: str):
     count = 0
@@ -62,7 +68,7 @@ def scrape_jumia_page(page_url: str):
 def scrape_konga_page(page_url: str):
     count = 0
     products_list = []
-    driver = webdriver.Chrome(executable_path=DRIVER_PATH)
+    driver = webdriver.Chrome(options=options)
     driver.get(page_url)
     time.sleep(8)
 
@@ -86,9 +92,6 @@ def scrape_konga_page(page_url: str):
     driver.quit()
 
     return [products_list, count]
-
-
-
 
    
 def get_products(word: str, price_range: str):
