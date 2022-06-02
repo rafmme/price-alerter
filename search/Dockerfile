@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 
 COPY ./requirements.txt /usr/src/app/requirements.txt
 
+RUN apk add gcc musl-dev python3-dev libffi-dev openssl-dev cargo
 RUN apk add chromium
 RUN apk add chromium-chromedriver
 
