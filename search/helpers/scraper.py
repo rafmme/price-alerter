@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from models.product import Product
 from helpers.helper import create_jumia_search_url, create_konga_search_url, filter_by_price_range
+from helpers.custom_thread import ThreadWithResult
 
 
 
@@ -68,7 +69,7 @@ def scrape_konga_page(page_url: str):
     products_list = []
     driver = webdriver.Chrome(options=options)
     driver.get(page_url)
-    time.sleep(10)
+    time.sleep(5)
 
     try:
         products_section = driver.find_element_by_id('mainContent')
@@ -83,8 +84,9 @@ def scrape_konga_page(page_url: str):
             product = Product(name, image_url, url, price).get_product()
             products_list.append(product)
     
-    except TypeError:
+    except Exception as e:
         driver.quit()
+        return products_list
         pass
     driver.quit()
 
@@ -92,8 +94,18 @@ def scrape_konga_page(page_url: str):
 
    
 def get_products(word: str, price_range: str):
-    jumia_data = scrape_jumia_page(create_jumia_search_url(word))
-    konga_data = scrape_konga_page(create_konga_search_url(word))
+    jumia_search_url = create_jumia_search_url(word)
+    konga_search_url= create_konga_search_url(word)
+    jumia_thread = ThreadWithResult(target=scrape_jumia_page, args=(jumia_search_url, ))
+    konga_thread = ThreadWithResult(target=scrape_konga_page, args=(konga_search_url, ))
+
+    jumia_thread.start()
+    konga_thread.start()
+    jumia_thread.join()
+    konga_thread.join()
+    jumia_data = jumia_thread.result
+    konga_data = konga_thread.result
+    
 
     products = filter_by_price_range(konga_data + jumia_data, price_range) 
 

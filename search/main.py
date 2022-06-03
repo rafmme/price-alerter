@@ -14,7 +14,12 @@ def index():
 
 @app.get('/search')
 def search_for_product(word: str, price_range: str = ''):
-    result = get_products(word, price_range)
-    return format_response(200, 'Search Results for product `' + word + '`', 'products', result, len(result))
+    try:
+        result = get_products(word, price_range)
+        return format_response(200, 'Search Results for product `' + word + '`', 'products', result, len(result))
+
+    except Exception as e:
+        return format_response(500, 'An error occured on the server', 'products', [], 0)
+        pass
 
 
