@@ -15,6 +15,6 @@ def index():
 @app.get('/search')
 def search_for_product(word: str, price_range: str = ''):
     result = get_products(word, price_range)
-    return format_response(200, 'Search Results for product `' + word + '`', 'products', result[0], result[1])
+    return format_response(200, 'Search Results for product `' + word + '`', 'products', result, len(result))
 
 

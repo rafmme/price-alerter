@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from models.product import Product
-from helpers.helper import create_jumia_search_url, create_konga_search_url
+from helpers.helper import create_jumia_search_url, create_konga_search_url, filter_by_price_range
 
 
 
@@ -25,7 +25,6 @@ def get_webpage(url: str):
 
 
 def scrape_jumia_page(page_url: str):
-    count = 0
     products_list = []
     soup = get_webpage(page_url)
     soup2 = get_webpage(page_url + '&page=2#catalog-listing')
@@ -58,20 +57,18 @@ def scrape_jumia_page(page_url: str):
 
             product = Product(name, image_url, url, price).get_product()
             products_list.append(product)
-            count += 1
 
         except KeyError:
             pass
     
-    return [products_list, count]
+    return products_list
    
 
 def scrape_konga_page(page_url: str):
-    count = 0
     products_list = []
     driver = webdriver.Chrome(options=options)
     driver.get(page_url)
-    time.sleep(8)
+    time.sleep(10)
 
     try:
         products_section = driver.find_element_by_id('mainContent')
@@ -85,24 +82,22 @@ def scrape_konga_page(page_url: str):
 
             product = Product(name, image_url, url, price).get_product()
             products_list.append(product)
-            count += 1
     
     except TypeError:
         driver.quit()
         pass
     driver.quit()
 
-    return [products_list, count]
+    return products_list
 
    
 def get_products(word: str, price_range: str):
-    jumia_data = scrape_jumia_page(create_jumia_search_url(word, price_range))
+    jumia_data = scrape_jumia_page(create_jumia_search_url(word))
     konga_data = scrape_konga_page(create_konga_search_url(word))
 
-    products = konga_data[0] + jumia_data[0]
-    products_count = konga_data[1] + jumia_data[1]
+    products = filter_by_price_range(konga_data + jumia_data, price_range) 
 
-    return [products, products_count]
+    return products
 
 
 
