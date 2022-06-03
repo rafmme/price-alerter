@@ -51,7 +51,7 @@ def scrape_jumia_page(page_url: str):
 
     for article in products_catalog:
         try:
-            url = 'https://www.jumia.com.ng/' + article.find('a', class_ = 'core').attrs['href']
+            url = 'https://www.jumia.com.ng' + article.find('a', class_ = 'core').attrs['href']
             name = article.find('h3', class_ = 'name').text
             price = article.find('div', class_ = 'prc').text
             image_url = article.find('img', class_ = 'img').attrs['data-src']
