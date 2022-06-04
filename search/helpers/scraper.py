@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from models.product import Product
-from helpers.helper import create_jumia_search_url, create_konga_search_url, filter_by_price_range
+from helpers.helper import create_jumia_search_url, create_konga_search_url, filter_by_price_range, create_product_tag
 from helpers.custom_thread import ThreadWithResult
 
 
@@ -55,8 +55,9 @@ def scrape_jumia_page(page_url: str):
             name = article.find('h3', class_ = 'name').text
             price = article.find('div', class_ = 'prc').text
             image_url = article.find('img', class_ = 'img').attrs['data-src']
+            tag = create_product_tag(url)
 
-            product = Product(name, image_url, url, price).get_product()
+            product = Product(name, image_url, url, price, tag).get_product()
             products_list.append(product)
 
         except KeyError:
@@ -80,8 +81,9 @@ def scrape_konga_page(page_url: str):
             image_url = li.find_element_by_css_selector('div > div > div:nth-of-type(1) > a:nth-of-type(1) > picture').find_element_by_tag_name('img').get_attribute('data-src')
             name = li.find_element_by_css_selector('div > div > div:nth-of-type(2) > a:nth-of-type(1) > div:nth-of-type(1) > h3').text
             price = li.find_element_by_css_selector('div > div > div:nth-of-type(2) > a:nth-of-type(1) > div:nth-of-type(2) > span').text
+            tag = create_product_tag(url)
 
-            product = Product(name, image_url, url, price).get_product()
+            product = Product(name, image_url, url, price, tag).get_product()
             products_list.append(product)
     
     except Exception as e:

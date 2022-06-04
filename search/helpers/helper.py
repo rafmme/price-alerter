@@ -65,3 +65,22 @@ def filter_by_price_range(products_list, price_range: str):
         return products_list
         pass
 
+
+def create_product_tag(url: str):
+    link = url.replace('https://www.konga.com', '').replace('https://www.jumia.com.ng', '')
+    tag = link.replace('-', '_').replace('.', '__').replace('/', '___').replace('___', '/', 1)
+    return tag
+
+
+def tag_to_url(tag: str):
+    url = ''
+    if tag.startswith('/product___'):
+        url = 'https://www.konga.com' + tag.replace('___', '/').replace('__', '.').replace('_', '-')
+    else:
+        url = 'https://www.jumia.com.ng' + tag.replace('___', '/').replace('__', '.').replace('_', '-')
+    return url
+
+
+
+
+
