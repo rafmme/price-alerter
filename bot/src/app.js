@@ -3,9 +3,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
 import pingmydyno from 'pingmydyno';
+import TelegramBotHandler from './telegram';
 import Util from './utils';
-/* import Cron from './cron_jobs';
-import { startTelegramBot } from './telegram'; */
 
 dotenv.config();
 
@@ -19,16 +18,10 @@ app.use(cors());
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
 app.get('/', async (req, res) => {
-  const a = await Util.MakeHTTPRequest({ url: `http://localhost:5000` });
-  console.log(a, '::: - :::');
-
   res.status(200).send({
     message: 'Hello, World! Welcome to Dealz Finder App',
   });
 });
-
-/* Cron.StartCronJobs();
-(async () => startTelegramBot())(); */
 
 if (!module.parent) {
   app.listen(PORT, () => {
@@ -42,5 +35,7 @@ if (!module.parent) {
     console.log(`App is live on ${PORT}`);
   });
 }
+
+TelegramBotHandler.init();
 
 export default app;
