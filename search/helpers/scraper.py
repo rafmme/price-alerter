@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from models.product import Product
-from helpers.helper import create_jumia_search_url, create_konga_search_url, filter_by_price_range, create_product_tag
+from helpers.helper import create_jumia_search_url, create_konga_search_url, filter_by_price_range, create_product_tag, tag_to_url
 from helpers.custom_thread import ThreadWithResult
 
 
@@ -25,9 +25,26 @@ def get_webpage(url: str):
     return soup
 
 
-def scrape_jumia_page(page_url: str):
+def scrape_jumia_page(page_url: str, is_info: bool = False):
     products_list = []
     soup = get_webpage(page_url)
+
+    if is_info:
+        p_url = page_url
+        p_name = soup.select('#jm > main > div:nth-child(1) > section > div > div.col10')[0].find('h1').text
+        p_price = soup.select('#jm > main > div:nth-child(1) > section > div > div.col10 > div:nth-child(2) > div:nth-child(3) > div > span')[0].text
+        img_url = soup.select('#imgs > a:nth-child(2)')[0].attrs['href']
+        p_info = soup.select('#jm > main > div:nth-child(2) > div.col12 > div > div.markup')[0].text
+
+        return {
+            'name': p_name,
+            'price': p_price,
+            'url': p_url,
+            'info': p_info,
+            'imageUrl': img_url
+        }
+
+
     soup2 = get_webpage(page_url + '&page=2#catalog-listing')
     soup3 = get_webpage(page_url + '&page=3#catalog-listing')
     soup4 = get_webpage(page_url + '&page=4#catalog-listing')
@@ -61,18 +78,34 @@ def scrape_jumia_page(page_url: str):
             products_list.append(product)
 
         except KeyError:
+            return products_list
             pass
     
     return products_list
    
 
-def scrape_konga_page(page_url: str):
+def scrape_konga_page(page_url: str, is_info: bool = False):
     products_list = []
     driver = webdriver.Chrome(options=options)
     driver.get(page_url)
     time.sleep(5)
 
     try:
+        if is_info:
+            p_url = page_url
+            p_name = driver.find_element_by_css_selector('#mainContent > div:nth-of-type(2) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > h4').text
+            p_price = driver.find_element_by_css_selector('#mainContent > div:nth-of-type(2) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(2) > form > div:nth-of-type(3) > div:nth-of-type(1) > div').text
+            img_url = driver.find_element_by_css_selector('#mainContent > div:nth-of-type(2) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(1) > div > div > div > div:nth-of-type(1) > picture > img').get_attribute('src')
+            p_info = driver.find_element_by_css_selector('#productDetailSection > div > div:nth-of-type(1) > div:nth-of-type(2) > div > div > p:nth-of-type(1)').text
+
+            return {
+                'name': p_name,
+                'price': p_price,
+                'url': p_url,
+                'info': p_info,
+                'imageUrl': img_url
+            }
+
         products_section = driver.find_element_by_id('mainContent')
         products_catalog = products_section.find_elements_by_css_selector('section:nth-of-type(3) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > ul:nth-of-type(1) > li')
 
@@ -88,10 +121,12 @@ def scrape_konga_page(page_url: str):
     
     except Exception as e:
         driver.quit()
+        if is_info:
+            return {}
         return products_list
         pass
-    driver.quit()
 
+    driver.quit()
     return products_list
 
    
@@ -114,6 +149,23 @@ def get_products(word: str, price_range: str):
     return products
 
 
+def product_info(tag: str):
+    result = {}
+    url = tag_to_url(tag)
+
+    if url.startswith('https://www.konga.com'):
+        konga_thread = ThreadWithResult(target=scrape_konga_page, args=(url, True, ))
+        konga_thread.start()
+        konga_thread.join()
+        result = konga_thread.result
+
+    elif url.startswith('https://www.jumia.com.ng'):
+        jumia_thread = ThreadWithResult(target=scrape_jumia_page, args=(url, True, ))
+        jumia_thread.start()
+        jumia_thread.join()
+        result = jumia_thread.result
+
+    return result
 
 
 

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from helpers.helper import format_response
-from helpers.scraper import get_products
+from helpers.scraper import get_products, product_info
 
 
 app = FastAPI()
@@ -9,7 +9,6 @@ app = FastAPI()
 @app.get('/')
 def index():
     return format_response(200, 'Welcome to the Product Search Service!', None, None, None)
-
 
 
 @app.get('/search')
@@ -22,4 +21,14 @@ def search_for_product(word: str, price_range: str = ''):
         return format_response(500, 'An error occured on the server', 'products', [], 0)
         pass
 
+
+@app.get('/info')
+def get_product_info(tag: str):
+    try:
+        result = product_info(tag)
+        return format_response(200, 'Product Info', 'product', result, None)
+
+    except Exception as e:
+        return format_response(500, 'An error occured on the server', 'product', {}, None)
+        pass
 
