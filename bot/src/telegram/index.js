@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
+import Mailer from '../email';
 import Util from '../utils';
 import RequestBuilder from '../utils/request/requestQueryBuilder';
 
@@ -88,7 +89,16 @@ export default class TelegramBotHandler {
     const bookPages = 100;
 
     this.onText(re, (msg) => {
-      this.sendMessage(msg.chat.id, 'Page: 25', Util.getPagination(25, bookPages));
+      const { ALERT_ADR } = process.env;
+
+      Mailer.sendMail({
+        from: ALERT_ADR,
+        to: 'fartim96@gmail.com',
+        subject: 'Dealz Finder Alertz',
+        text: 'Yay! It works 🎉',
+      });
+
+      this.sendMessage(msg.chat.id, 'Page: 1', Util.getPagination(1, bookPages));
     });
   }
 

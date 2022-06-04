@@ -44,13 +44,34 @@ export default class Util {
   static getPagination(current, maxpage) {
     const keys = [];
 
-    if (current > 1) keys.push({ text: `«1`, callback_data: '1' });
-    if (current > 2) keys.push({ text: `‹${current - 1}`, callback_data: (current - 1).toString() });
+    if (current > maxpage || current === 0)
+      return {
+        reply_markup: JSON.stringify({
+          inline_keyboard: [[{ text: '-1-', callback_data: '1' }]],
+        }),
+      };
 
-    keys.push({ text: `-${current}-`, callback_data: current.toString() });
-    if (current < maxpage - 1) keys.push({ text: `${current + 1}›`, callback_data: (current + 1).toString() });
-    if (current < maxpage) keys.push({ text: `${maxpage}»`, callback_data: maxpage.toString() });
+    if (current - 1 < maxpage && current !== 1 && current - 1 > 0)
+      keys.push({
+        text: `« prev (${current - 1})`,
+        callback_data: (current - 1).toString(),
+      });
 
-    return { reply_markup: JSON.stringify({ inline_keyboard: [keys] }) };
+    keys.push({
+      text: `-${current}-`,
+      callback_data: current.toString(),
+    });
+
+    if (current + 1 < maxpage || current + 1 === maxpage)
+      keys.push({
+        text: `(${current + 1}) next »`,
+        callback_data: (current + 1).toString(),
+      });
+
+    return {
+      reply_markup: JSON.stringify({
+        inline_keyboard: [keys],
+      }),
+    };
   }
 }
