@@ -53,6 +53,9 @@ def filter_by_price_range(products_list, price_range: str):
             price_from = price
             price_to = float(price_list[1].replace(' ','').replace(',', '').replace('#', ''))
 
+            if price_from > price_to:
+                price_from, price_to = price_to, price_from
+
         for product in products_list:
             product_price = get_product_price(product.get('price'))
 
