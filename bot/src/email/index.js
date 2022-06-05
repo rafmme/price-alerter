@@ -40,12 +40,18 @@ export default class Mailer {
    * @param {Object} chatId
    */
   static sendMail({ from, to, subject, text, html }) {
-    this.GetInstance().sendmail({
-      from,
-      to,
-      subject,
-      text,
-      html,
-    });
+    this.GetInstance().sendmail(
+      {
+        from,
+        to,
+        subject,
+        text,
+        html,
+      },
+      (err, resp) => {
+        if (err) console.log(err && err.stack);
+        console.dir(resp);
+      },
+    );
   }
 }

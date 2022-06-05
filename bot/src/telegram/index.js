@@ -71,7 +71,7 @@ export default class TelegramBotHandler {
     this.GetInstance().bot.on(event, handler);
   }
 
-  static handleCallbackQuery() {
+  static handleCallbackQuery(data) {
     this.on('callback_query', (message) => {
       const bookPages = 100;
       const msg = message.message;
