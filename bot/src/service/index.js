@@ -49,7 +49,8 @@ export default class Service {
   static async findOne(queryObj) {
     try {
       const record = await this.GetInstance().model.findOne(queryObj);
-      return record.dataValues;
+      if (record) return record.dataValues;
+      return null;
     } catch (error) {
       return null;
     }
@@ -68,8 +69,12 @@ export default class Service {
   static async remove(queryObj) {
     try {
       const record = await this.GetInstance().model.findOne(queryObj);
-      if (record) await record.destroy();
-      return 1;
+      if (record) {
+        await record.destroy();
+        return 1;
+      }
+
+      return 0;
     } catch (error) {
       return 0;
     }

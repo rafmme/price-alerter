@@ -3,6 +3,7 @@ import TelegramBot from 'node-telegram-bot-api';
 import Mailer from '../email';
 import Util from '../utils';
 import RequestBuilder from '../utils/request/requestQueryBuilder';
+import BotOps from './botOps';
 
 dotenv.config();
 
@@ -71,7 +72,7 @@ export default class TelegramBotHandler {
     this.GetInstance().bot.on(event, handler);
   }
 
-  static handleCallbackQuery(data) {
+  static handleCallbackQuery() {
     this.on('callback_query', (message) => {
       const bookPages = 100;
       const msg = message.message;
@@ -84,30 +85,19 @@ export default class TelegramBotHandler {
     });
   }
 
-  static handleBotOps() {
-    const re = /^\/start$/;
-    const bookPages = 100;
-
-    this.onText(re, (msg) => {
-      const { ALERT_ADR } = process.env;
-
-      Mailer.sendMail({
-        from: ALERT_ADR,
-        to: 'fartim96@gmail.com',
-        subject: 'Dealz Finder Alertz',
-        text: 'Yay! It works 🎉',
-      });
-
-      this.sendMessage(msg.chat.id, 'Page: 1', Util.getPagination(1, bookPages));
-    });
-  }
-
   /**
    * @static
    * @description
    */
   static init() {
-    this.handleCallbackQuery();
-    this.handleBotOps();
+    const { ALERT_ADR } = process.env;
+    Mailer.sendMail({
+      from: ALERT_ADR,
+      to: 'fartim96@gmail.com',
+      subject: 'Dealz Finder Alertz',
+      text: 'Yay! It works 🎉',
+    });
+
+    BotOps.execute(this.sendMessage, this.onText, this.handleCallbackQuery);
   }
 }

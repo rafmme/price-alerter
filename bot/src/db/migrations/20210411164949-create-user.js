@@ -13,6 +13,10 @@ module.exports = {
         unique: true,
         primaryKey: true,
       },
+      name: {
+        allowNull: true,
+        type: Sequelize.STRING,
+      },
       email: {
         allowNull: true,
         type: Sequelize.STRING,
