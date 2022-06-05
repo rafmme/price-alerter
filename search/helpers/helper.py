@@ -62,6 +62,7 @@ def filter_by_price_range(products_list, price_range: str):
             if product_price >= price_from and product_price <= price_to:
                 filtered_products_list.append(product)
         
+        filtered_products_list.sort(key=lambda x: get_product_price(x.get('price')))
         return filtered_products_list
             
     except ValueError:

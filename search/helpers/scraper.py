@@ -146,7 +146,7 @@ def get_products(word: str, price_range: str):
 
     products = filter_by_price_range(konga_data + jumia_data, price_range) 
 
-    return products.sort(key=lambda x: x.get('price'))
+    return products
 
 
 def product_info(tag: str):
