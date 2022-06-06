@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
 import Util from '../utils';
 import BotOps from './botOps';
-import constants from './constants';
 
 dotenv.config();
 
@@ -85,9 +84,9 @@ export default class TelegramBotHandler {
     this.on('callback_query', (message) => {
       const msg = message.message;
       const currentPage = message.data;
-      const divider = 10;
+      const divider = 5;
       const contentsList = currentPage === 1 ? list.slice(0, divider) : list.slice(divider * (currentPage - 1), divider * currentPage);
-      const text = constants.showProductsListText(title, contentsList);
+      const text = Util.showProductsListText(title, contentsList);
       const editOptions = {
         ...Util.getPagination(Number.parseInt(currentPage, 10), pages),
         chat_id: msg.chat.id,

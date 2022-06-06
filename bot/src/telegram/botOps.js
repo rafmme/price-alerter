@@ -28,7 +28,7 @@ export default class BotOps {
       });
       const msgOptions = {
         reply_to_message_id: msg.message_id,
-        parse_mode: 'Markdown',
+        parse_mode: 'HTML',
       };
 
       if (!user) {
@@ -50,7 +50,7 @@ export default class BotOps {
       const chatId = msg.chat.id;
       TelegramBotHandler.sendMessage(chatId, constants.helpText, {
         reply_to_message_id: msg.message_id,
-        parse_mode: 'Markdown',
+        parse_mode: 'HTML',
       });
     });
 
@@ -115,14 +115,14 @@ export default class BotOps {
       const telegramId = msg.from.id;
       const msgOptions = {
         reply_to_message_id: msg.message_id,
-        parse_mode: 'Markdown',
+        parse_mode: 'HTML',
       };
       const action = await RedisCache.GetItem(telegramId);
 
       if (action && action !== '') {
         await RedisCache.SetItem(telegramId, '', 1);
         RedisCache.DeleteItem(telegramId);
-        const divider = 10;
+        const divider = 5;
         let pages = 0;
         let response;
 
@@ -136,7 +136,11 @@ export default class BotOps {
             }
 
             pages = response.products.length % divider === 0 ? response.products.length / divider : Number.parseInt(response.products.length / divider, 10) + 1;
-            TelegramBotHandler.sendMessage(chatId, Util.showProductsListText(response.message, response.products), Util.getPagination(1, pages));
+            TelegramBotHandler.sendMessage(
+              chatId,
+              Util.showProductsListText(`${response.message}\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
+              Util.getPagination(1, pages),
+            );
             TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
             break;
 
@@ -182,9 +186,13 @@ export default class BotOps {
         return;
       }
 
-      const divider = 10;
+      const divider = 5;
       const pages = response.products.length % divider === 0 ? response.products.length / divider : Number.parseInt(response.products.length / divider, 10) + 1;
-      TelegramBotHandler.sendMessage(chatId, Util.showProductsListText(response.message, response.products), Util.getPagination(1, pages));
+      TelegramBotHandler.sendMessage(
+        chatId,
+        Util.showProductsListText(`${response.message}\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
+        Util.getPagination(1, pages),
+      );
       TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
     });
   }

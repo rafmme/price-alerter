@@ -6,13 +6,13 @@ export default {
     return `Welcome back, ${name}.\nYou know the drill 😉. Please select any options and let's get rolling.`;
   },
   productInfoText: ({ name, price, url, info, imageUrl }) => {
-    return `*${name.toUpperCase()}*\n\n*${price}*\n\n_${info}_\n\n${imageUrl}\n\n${url}\n\n`;
+    return `<b>${name.toUpperCase()}</b>\n\n<b><i>${price}</i></b>\n\n<i>${info}</i>\n\n${imageUrl}\n\n${url}\n\n`;
   },
   productText: ({ name, price, url, tag }) => {
-    return `*${name.toUpperCase()}*\n\n*${price}*\n${tag.replace('/', '/tag_')}\n\n${url}\n\n`;
+    return `<b>${name.toUpperCase()}</b>\n\n<b><i>${price}</i></b>\n${tag.replace('/', '/tag_')}\n\n${url}\n\n`;
   },
   resultsText: (title, body) => {
-    return `_${title}_\n\n${body}`;
+    return `<i>${title}</i>\n\n${body}`;
   },
   helpText: 'Help is on the way',
 };

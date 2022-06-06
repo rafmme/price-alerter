@@ -70,7 +70,7 @@ export default class Util {
       });
 
     return {
-      parse_mode: 'Markdown',
+      parse_mode: 'HTML',
       reply_markup: JSON.stringify({
         inline_keyboard: [keys],
       }),
