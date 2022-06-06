@@ -4,6 +4,7 @@
 /* eslint-disable consistent-return */
 import axios from 'axios';
 import dotenv from 'dotenv';
+import constants from '../telegram/constants';
 
 dotenv.config();
 
@@ -69,9 +70,43 @@ export default class Util {
       });
 
     return {
+      parse_mode: 'Markdown',
       reply_markup: JSON.stringify({
         inline_keyboard: [keys],
       }),
+    };
+  }
+
+  static showProductsListText(title, productsList) {
+    let productText = '';
+
+    productsList.forEach((product) => {
+      productText += constants.productText(product);
+    });
+
+    return constants.resultsText(title, productText);
+  }
+
+  static showProductInfotext({ name, price, url, info, imageUrl }) {
+    return constants.productInfoText({ name, price, url, info, imageUrl });
+  }
+
+  /**
+   *
+   * @param {String} word
+   */
+  static createSearchUrl(word) {
+    const termsArray = word.split('@');
+
+    if (word.includes('@') && termsArray.length === 2)
+      return {
+        query: termsArray[0],
+        price: termsArray[1],
+      };
+
+    return {
+      query: word,
+      price: '',
     };
   }
 }
