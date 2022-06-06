@@ -9,36 +9,34 @@ export default class BotOps {
   /**
    * @static
    * @description
-   * @param {Function} sendMessageHandler
-   * @param {Function} onTextHandler
+   * @param {Function} TelegramBotHandler
    */
-  static onStart(sendMessageHandler, onTextHandler) {
+  static onStart(TelegramBotHandler) {
     const re = /^\/start$/;
 
-    onTextHandler(re, async (msg) => {
+    TelegramBotHandler.onText(re, async (msg) => {
       const telegramId = msg.from.id;
       const chatId = msg.chat.id;
       const name = `${msg.from.first_name}`;
+      const user = await UsersService.findOne({
+        where: {
+          telegramId,
+        },
+      });
       const msgOptions = {
         reply_to_message_id: msg.message_id,
       };
 
-      if (
-        (await UsersService.findOne({
-          where: {
-            telegramId,
-          },
-        })) === null
-      ) {
+      if (!user) {
         await UsersService.create({ name, telegramId });
-        return sendMessageHandler(chatId, constants.newUserStartText(name), msgOptions);
+        TelegramBotHandler.sendMessage(chatId, constants.newUserStartText(name), msgOptions);
+      } else {
+        TelegramBotHandler.sendMessage(chatId, constants.oldUserStartText(name), msgOptions);
       }
-
-      return sendMessageHandler(chatId, constants.oldUserStartText(name), msgOptions);
     });
   }
 
-  static execute(sendMessageHandler, onTextHandler, handleCallbackQuery) {
-    this.onStart(sendMessageHandler, onTextHandler);
+  static execute(TelegramBotHandler) {
+    this.onStart(TelegramBotHandler);
   }
 }

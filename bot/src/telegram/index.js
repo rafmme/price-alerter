@@ -1,8 +1,6 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
-import Mailer from '../email';
 import Util from '../utils';
-import RequestBuilder from '../utils/request/requestQueryBuilder';
 import BotOps from './botOps';
 
 dotenv.config();
@@ -89,15 +87,7 @@ export default class TelegramBotHandler {
    * @static
    * @description
    */
-  static init() {
-    const { ALERT_ADR } = process.env;
-    Mailer.sendMail({
-      from: ALERT_ADR,
-      to: 'fartim96@gmail.com',
-      subject: 'Dealz Finder Alertz',
-      text: 'Yay! It works 🎉',
-    });
-
-    BotOps.execute(this.sendMessage, this.onText, this.handleCallbackQuery);
+  static async init() {
+    BotOps.execute(this);
   }
 }

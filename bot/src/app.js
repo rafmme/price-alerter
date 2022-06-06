@@ -4,7 +4,6 @@ import express from 'express';
 import morgan from 'morgan';
 import pingmydyno from 'pingmydyno';
 import TelegramBotHandler from './telegram';
-import Util from './utils';
 
 dotenv.config();
 
