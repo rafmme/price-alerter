@@ -9,10 +9,11 @@ export default {
     return `<b>${name.toUpperCase()}</b>\n\n<b><i>${price}</i></b>\n\n<i>${info}</i>\n\n${imageUrl}\n\n${url}\n\n`;
   },
   productText: ({ name, price, url, tag }) => {
-    return `<b>${name.toUpperCase()}</b>\n\n<b><i>${price}</i></b>\n${tag.replace('/', '/tag_')}\n\n${url}\n\n`;
+    const linkTag = tag.replace('/', '/tag_');
+    return `<b>${name.toUpperCase()}</b>\n<b><i>[ ${price} ]</i></b>\n\n<a href="${linkTag}">${linkTag}</a>\n\n${url}\n\n\n`;
   },
   resultsText: (title, body) => {
-    return `<i>${title}</i>\n\n${body}`;
+    return `<b><i>${title}</i></b>\n\n${body}`;
   },
   helpText: 'Help is on the way',
 };

@@ -138,7 +138,7 @@ export default class BotOps {
             pages = response.products.length % divider === 0 ? response.products.length / divider : Number.parseInt(response.products.length / divider, 10) + 1;
             TelegramBotHandler.sendMessage(
               chatId,
-              Util.showProductsListText(`${response.message}\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
+              Util.showProductsListText(`${response.message}\n\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
               Util.getPagination(1, pages),
             );
             TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
@@ -190,7 +190,7 @@ export default class BotOps {
       const pages = response.products.length % divider === 0 ? response.products.length / divider : Number.parseInt(response.products.length / divider, 10) + 1;
       TelegramBotHandler.sendMessage(
         chatId,
-        Util.showProductsListText(`${response.message}\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
+        Util.showProductsListText(`${response.message}\n\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
         Util.getPagination(1, pages),
       );
       TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
