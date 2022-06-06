@@ -4,51 +4,21 @@ import RequestBuilder from '../utils/request/requestQueryBuilder';
 
 dotenv.config();
 
+const { BACKEND_API: baseUrl } = process.env;
+
 /**
  * @class
  * @classdesc
  */
 export default class SearchService {
-  /**
-   * @constructor
-   * @description
-   */
-  constructor() {
-    const { BACKEND_API } = process.env;
-
-    if (typeof this.instance === 'object') {
-      return this.instance;
-    }
-
-    this.baseUrl = BACKEND_API;
-    this.requestQueryBuilder = RequestBuilder;
-    SearchService.instance = this;
-    return this;
-  }
-
-  /**
-   * @static
-   * @description
-   */
-  static GetInstance() {
-    const searchService = new this();
-    return searchService;
-  }
-
-  /**
-   *
-   * @param {String} word
-   * @returns {Array}
-   */
   static async findAll(word) {
     try {
       const { query, price } = Util.createSearchUrl(word);
-      const url = `${this.GetInstance().baseUrl}/search`;
+      const url = `${baseUrl}/search`;
 
-      await new this.GetInstance().requestQueryBuilder().withURL(this.GetInstance().baseUrl).method('GET').queryParams({}).build().send();
+      await new RequestBuilder().withURL(baseUrl).method('GET').queryParams({}).build().send();
 
-      const response = await new this.GetInstance()
-        .requestQueryBuilder()
+      const response = await new RequestBuilder()
         .withURL(url)
         .method('GET')
         .queryParams({
@@ -66,12 +36,11 @@ export default class SearchService {
 
   static async findOne(tag) {
     try {
-      const url = `${this.GetInstance().baseUrl}/info`;
+      const url = `${baseUrl}/info`;
 
-      await new this.GetInstance().requestQueryBuilder().withURL(this.GetInstance().baseUrl).method('GET').queryParams({}).build().send();
+      await new RequestBuilder().withURL(baseUrl).method('GET').queryParams({}).build().send();
 
-      const response = await new this.GetInstance()
-        .requestQueryBuilder()
+      const response = await new RequestBuilder()
         .withURL(url)
         .method('GET')
         .queryParams({

@@ -6,10 +6,10 @@ export default {
     return `Welcome back, ${name}.\nYou know the drill 😉. Please select any options and let's get rolling.`;
   },
   productInfoText: ({ name, price, url, info, imageUrl }) => {
-    return `🛍 *${name.toUpperCase()}*\n    *${price}*\n\n_${info}_\n\n${imageUrl}\n${url}\n\n`;
+    return `*${name.toUpperCase()}*\n\n*${price}*\n\n_${info}_\n\n${imageUrl}\n\n${url}\n\n`;
   },
   productText: ({ name, price, url, tag }) => {
-    return `*${name.toUpperCase()}*\n    *${price}*\n${tag.replace('/', '/tag_')}\n\n${url}\n\n`;
+    return `*${name.toUpperCase()}*\n\n*${price}*\n${tag.replace('/', '/tag_')}\n\n${url}\n\n`;
   },
   resultsText: (title, body) => {
     return `_${title}_\n\n${body}`;

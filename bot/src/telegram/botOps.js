@@ -59,32 +59,29 @@ export default class BotOps {
       await RedisCache.SetItem(chatId, 'SEARCH', 60 * 5);
       TelegramBotHandler.sendMessage(
         chatId,
-        'Please enter the Product name within the next 5 minutes.\nFor example: `Nokia Phone`\nTo specify price range, send `Nokia Phone@20,000-70,000`',
+        'Please enter the Product name within the next 5 minutes.\nFor example: Nokia Phone\nTo specify price range too, send Nokia Phone@20,000-70,000',
       );
     });
 
     TelegramBotHandler.onText(/^\/setalert$/, async (msg) => {
       const chatId = msg.chat.id;
       await RedisCache.SetItem(chatId, 'SET_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(
-        chatId,
-        'Please enter the Alert details within the next 5 minutes.\nFor example: `Nokia Phone@20,000-70,000`\ni.e Name of Product@Price-Range',
-      );
+      TelegramBotHandler.sendMessage(chatId, 'Please enter the Alert details within the next 5 minutes.\nFor example: Nokia Phone@20,000-70,000\ni.e Name of Product@Price-Range');
     });
     TelegramBotHandler.onText(/^\/stopalert$/, async (msg) => {
       const chatId = msg.chat.id;
       await RedisCache.SetItem(chatId, 'STOP_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the Alert ID within the next 5 minutes.\nFor example: `02334`');
+      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want stopped within the next 5 minutes.\nFor example: `02334`');
     });
     TelegramBotHandler.onText(/^\/startalert$/, async (msg) => {
       const chatId = msg.chat.id;
       await RedisCache.SetItem(chatId, 'START_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the Alert ID within the next 5 minutes.\nFor example: `02334`');
+      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want restarted within the next 5 minutes.\nFor example: `02334`');
     });
     TelegramBotHandler.onText(/^\/deletealert$/, async (msg) => {
       const chatId = msg.chat.id;
       await RedisCache.SetItem(chatId, 'DELETE_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the Alert ID within the next 5 minutes.\nFor example: `02334`');
+      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want deleted within the next 5 minutes.\nFor example: `02334`');
     });
     TelegramBotHandler.onText(/^\/viewalerts$/, async (msg) => {
       const chatId = msg.chat.id;
@@ -131,15 +128,14 @@ export default class BotOps {
 
         switch (action) {
           case 'SEARCH':
-            TelegramBotHandler.sendMessage(chatId, `Processing your search for ${msg.text}……`, msgOptions);
-            response = SearchService.findAll(msg.text);
+            response = await SearchService.findAll(msg.text);
 
             if (!response || response.count < 1) {
               TelegramBotHandler.sendMessage(chatId, `Sorry, No Product found. Try refining your search word. 😔`, msgOptions);
               return;
             }
 
-            pages = response.products.length % divider === 0 ? response.productslength / divider : Number.parseInt(response.products.length / divider, 10) + 1;
+            pages = response.products.length % divider === 0 ? response.products.length / divider : Number.parseInt(response.products.length / divider, 10) + 1;
             TelegramBotHandler.sendMessage(chatId, Util.showProductsListText(response.message, response.products), Util.getPagination(1, pages));
             TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
             break;
@@ -168,7 +164,6 @@ export default class BotOps {
       }
 
       if (msg.text.startsWith('/tag_')) {
-        TelegramBotHandler.sendMessage(chatId, 'Fetching the Product information....', msgOptions);
         const response = await SearchService.findOne(msg.text);
 
         if (!response || response.product === {}) {
@@ -180,8 +175,7 @@ export default class BotOps {
         return;
       }
 
-      TelegramBotHandler.sendMessage(chatId, `Processing your search for ${msg.text}……`, msgOptions);
-      const response = SearchService.findAll(msg.text);
+      const response = await SearchService.findAll(msg.text);
 
       if (!response || response.count < 1) {
         TelegramBotHandler.sendMessage(chatId, `Sorry, No Product found. Try refining your search word. 😔`, msgOptions);
@@ -189,7 +183,7 @@ export default class BotOps {
       }
 
       const divider = 10;
-      const pages = response.products.length % divider === 0 ? response.productslength / divider : Number.parseInt(response.products.length / divider, 10) + 1;
+      const pages = response.products.length % divider === 0 ? response.products.length / divider : Number.parseInt(response.products.length / divider, 10) + 1;
       TelegramBotHandler.sendMessage(chatId, Util.showProductsListText(response.message, response.products), Util.getPagination(1, pages));
       TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
     });
