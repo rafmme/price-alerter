@@ -49,7 +49,11 @@ export default class Service {
   static async findOne(queryObj) {
     try {
       const record = await this.GetInstance().model.findOne(queryObj);
-      if (record) return record.dataValues;
+
+      if (record) {
+        return record.dataValues;
+      }
+
       return null;
     } catch (error) {
       return null;

@@ -9,12 +9,15 @@ module.exports = {
       },
       telegramId: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       term: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       isOn: {
         type: Sequelize.BOOLEAN,
+        allowNull: false,
         defaultValue: true,
       },
       createdAt: {

@@ -114,4 +114,18 @@ export default class Util {
       price: '',
     };
   }
+
+  static showUserAlertsText(title, listOfAlerts) {
+    let alertsText = '';
+
+    if (listOfAlerts.length < 1 || !listOfAlerts) {
+      return 'You have no alert setup yet.';
+    }
+
+    listOfAlerts.forEach((alert) => {
+      alertsText += constants.alertText(alert);
+    });
+
+    return constants.resultsText(title, alertsText);
+  }
 }

@@ -1,8 +1,10 @@
 import RedisCache from '../cache/redis';
 import SearchService from '../service/search.service';
 import UsersService from '../service/users.service';
+import AlertsService from '../service/alerts.service';
 import Util from '../utils';
 import constants from './constants';
+import Validator from '../utils/validator';
 
 /**
  * @class
@@ -20,7 +22,7 @@ export default class BotOps {
     TelegramBotHandler.onText(re, async (msg) => {
       const chatId = msg.chat.id;
       const name = `${msg.from.first_name}`;
-      const user = await UsersService.findOne({
+      const userExist = await Validator.checkIfResourceExist(UsersService, {
         where: {
           telegramId: chatId,
         },
@@ -30,11 +32,11 @@ export default class BotOps {
         parse_mode: 'HTML',
       };
 
-      if (!user) {
+      if (userExist) {
+        TelegramBotHandler.sendMessage(chatId, constants.oldUserStartText(name), msgOptions);
+      } else {
         await UsersService.create({ name, telegramId: chatId });
         TelegramBotHandler.sendMessage(chatId, constants.newUserStartText(name), msgOptions);
-      } else {
-        TelegramBotHandler.sendMessage(chatId, constants.oldUserStartText(name), msgOptions);
       }
     });
   }
@@ -49,6 +51,7 @@ export default class BotOps {
       reply_to_message_id: '',
       parse_mode: 'HTML',
     };
+
     TelegramBotHandler.onText(/^\/help$/, async (msg) => {
       const chatId = msg.chat.id;
       msgOptions.reply_to_message_id = msg.message_id;
@@ -61,7 +64,7 @@ export default class BotOps {
       await RedisCache.SetItem(chatId, 'SEARCH', 60 * 5);
       TelegramBotHandler.sendMessage(
         chatId,
-        'Please enter the Product name within the next 5 minutes.\nFor example: Nokia Phone\nTo specify price range too, send Nokia Phone@20,000-70,000',
+        'Please enter the Product name within the next 5 minutes or Send exit to abort.\nFor example: Nokia Phone\nTo specify price range too, send Nokia Phone@20,000-70,000',
         msgOptions,
       );
     });
@@ -72,33 +75,83 @@ export default class BotOps {
       await RedisCache.SetItem(chatId, 'SET_ALERT', 60 * 5);
       TelegramBotHandler.sendMessage(
         chatId,
-        'Please enter the Alert details within the next 5 minutes.\nFor example: Nokia Phone@20,000-70,000\ni.e Name of Product@Price-Range',
+        'Please enter the Alert details within the next 5 minutes or Send exit to abort.\nFor example: Nokia Phone@20,000-70,000\ni.e Name of Product@Price-Range',
         msgOptions,
       );
     });
+
     TelegramBotHandler.onText(/^\/stopalert$/, async (msg) => {
       const chatId = msg.chat.id;
       msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'STOP_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want stopped within the next 5 minutes.\nFor example: `02334`', msgOptions);
+      TelegramBotHandler.sendMessage(
+        chatId,
+        'Please enter the ID of the Alert you want stopped within the next 5 minutes or Send exit to abort.\nFor example: `02334`',
+        msgOptions,
+      );
     });
+
     TelegramBotHandler.onText(/^\/startalert$/, async (msg) => {
       const chatId = msg.chat.id;
       msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'START_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want restarted within the next 5 minutes.\nFor example: `02334`', msgOptions);
+      TelegramBotHandler.sendMessage(
+        chatId,
+        'Please enter the ID of the Alert you want restarted within the next 5 minutes or Send exit to abort.\nFor example: `02334`',
+        msgOptions,
+      );
     });
+
     TelegramBotHandler.onText(/^\/deletealert$/, async (msg) => {
       const chatId = msg.chat.id;
       msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'DELETE_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want deleted within the next 5 minutes.\nFor example: `02334`', msgOptions);
+      TelegramBotHandler.sendMessage(
+        chatId,
+        'Please enter the ID of the Alert you want deleted within the next 5 minutes or Send exit to abort.\nFor example: `02334`',
+        msgOptions,
+      );
     });
+
     TelegramBotHandler.onText(/^\/viewalerts$/, async (msg) => {
       const chatId = msg.chat.id;
       msgOptions.reply_to_message_id = msg.message_id;
+      const alertsList = await AlertsService.findAll({
+        where: {
+          telegramId: chatId,
+        },
+      });
 
-      TelegramBotHandler.sendMessage(chatId, 'All alerts', msgOptions);
+      const alerts = Util.showUserAlertsText('Your Alerts List:', alertsList);
+      TelegramBotHandler.sendMessage(chatId, alerts, msgOptions);
+    });
+
+    TelegramBotHandler.onText(/^\/viewactivealerts$/, async (msg) => {
+      const chatId = msg.chat.id;
+      msgOptions.reply_to_message_id = msg.message_id;
+      const alertsList = await AlertsService.findAll({
+        where: {
+          telegramId: chatId,
+          isOn: true,
+        },
+      });
+
+      const alerts = Util.showUserAlertsText('Your Active Alerts List:', alertsList);
+      TelegramBotHandler.sendMessage(chatId, alerts, msgOptions);
+    });
+
+    TelegramBotHandler.onText(/^\/viewstoppedalerts$/, async (msg) => {
+      const chatId = msg.chat.id;
+      msgOptions.reply_to_message_id = msg.message_id;
+      const alertsList = await AlertsService.findAll({
+        where: {
+          telegramId: chatId,
+          isOn: false,
+        },
+      });
+
+      const alerts = Util.showUserAlertsText('Your Stopped Alerts List:', alertsList);
+      TelegramBotHandler.sendMessage(chatId, alerts, msgOptions);
     });
   }
 
@@ -136,8 +189,21 @@ export default class BotOps {
         await RedisCache.SetItem(telegramId, '', 1);
         RedisCache.DeleteItem(telegramId);
         const divider = 5;
-        let pages = 0;
         let response;
+        let pages = 0;
+
+        let alertData = {
+          id: Number.parseInt(msg.text, 10),
+          telegramId: chatId,
+        };
+        let alertExist = await Validator.checkIfResourceExist(AlertsService, {
+          where: alertData,
+        });
+
+        if (msg.text.toLowerCase() === 'exit') {
+          TelegramBotHandler.sendMessage(chatId, `Intented action has been terminated!`, msgOptions);
+          return;
+        }
 
         switch (action) {
           case 'SEARCH':
@@ -155,22 +221,55 @@ export default class BotOps {
               Util.getPagination(1, pages, msg.message_id),
             );
             TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
+
             break;
 
           case 'SET_ALERT':
-            TelegramBotHandler.sendMessage(chatId, `Cool, I will notify you when I find deals on ${msg.text}`, msgOptions);
+            alertData = {
+              term: msg.text.toLowerCase(),
+              telegramId: chatId,
+            };
+            alertExist = await Validator.checkIfResourceExist(AlertsService, {
+              where: alertData,
+            });
+
+            if (alertExist) {
+              TelegramBotHandler.sendMessage(chatId, `❌ Oops! it looks like you already have an alert with the same term <b><i>${msg.text}</i></b>.`, msgOptions);
+            } else {
+              await AlertsService.create(alertData);
+              TelegramBotHandler.sendMessage(chatId, `👍🏾 Cool, I will notify you when I find deals on <b><i>${msg.text}</i></b>.`, msgOptions);
+            }
+
             break;
 
           case 'START_ALERT':
-            TelegramBotHandler.sendMessage(chatId, `Alert ${msg.text} has been restarted`, msgOptions);
+            if (alertExist) {
+              await AlertsService.update({ where: alertData }, { isOn: true });
+              TelegramBotHandler.sendMessage(chatId, `✅ Your Alert with ID <b><i>${msg.text}</i></b> has been restarted`, msgOptions);
+            } else {
+              TelegramBotHandler.sendMessage(chatId, `❌ Oops! You have no Alert with the ID of<b><i>${msg.text}</i></b>`, msgOptions);
+            }
+
             break;
 
           case 'STOP_ALERT':
-            TelegramBotHandler.sendMessage(chatId, `Alert ${msg.text} has been stopped`, msgOptions);
+            if (alertExist) {
+              await AlertsService.update({ where: alertData }, { isOn: false });
+              TelegramBotHandler.sendMessage(chatId, `✅ Your Alert with ID <b><i>${msg.text}</i></b> has been stopped.`, msgOptions);
+            } else {
+              TelegramBotHandler.sendMessage(chatId, `❌ Oops! You have no Alert with the ID of<b><i>${msg.text}</i></b>`, msgOptions);
+            }
+
             break;
 
           case 'DELETE_ALERT':
-            TelegramBotHandler.sendMessage(chatId, `Alert ${msg.text} has been deleted`, msgOptions);
+            if (alertExist) {
+              await AlertsService.remove({ where: alertData });
+              TelegramBotHandler.sendMessage(chatId, `✅ Your Alert with ID <b><i>${msg.text}</i></b> has been deleted.`, msgOptions);
+            } else {
+              TelegramBotHandler.sendMessage(chatId, `❌ Oops! You have no Alert with the ID of<b><i>${msg.text}</i></b>`, msgOptions);
+            }
+
             break;
 
           default:

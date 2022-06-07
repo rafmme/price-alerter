@@ -16,4 +16,8 @@ export default {
     return `<b><i>${title}</i></b>\n\n${body}`;
   },
   helpText: 'Help is on the way',
+  alertText: ({ id, term, isOn }) => {
+    const isActive = isOn ? 'ON' : 'OFF';
+    return `<b>Alert ID: <i>${id}</i></b>\n<b>Term: <i>${term}</i></b>\n<b>Status: <i>${isActive}</i></b>\n\n`;
+  },
 };
