@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import RedisCache from '../cache/redis';
 import Util from '../utils';
 import RequestBuilder from '../utils/request/requestQueryBuilder';
 
@@ -13,9 +14,15 @@ const { BACKEND_API: baseUrl } = process.env;
 export default class SearchService {
   static async findAll(word) {
     try {
+      const key = word.toLowerCase();
+      const cacheResponse = await RedisCache.GetItem(key);
+
+      if (cacheResponse) {
+        return JSON.parse(cacheResponse);
+      }
+
       const { query, price } = Util.createSearchUrl(word);
       const url = `${baseUrl}/search`;
-
       await new RequestBuilder().withURL(baseUrl).method('GET').queryParams({}).build().send();
 
       const response = await new RequestBuilder()
@@ -28,6 +35,7 @@ export default class SearchService {
         .build()
         .send();
 
+      await RedisCache.SetItem(key, JSON.stringify(response), 3600);
       return response;
     } catch (error) {
       return null;
@@ -36,8 +44,14 @@ export default class SearchService {
 
   static async findOne(tag) {
     try {
-      const url = `${baseUrl}/info`;
+      const key = tag.toLowerCase();
+      const cacheResponse = await RedisCache.GetItem(key);
 
+      if (cacheResponse) {
+        return JSON.parse(cacheResponse);
+      }
+
+      const url = `${baseUrl}/info`;
       await new RequestBuilder().withURL(baseUrl).method('GET').queryParams({}).build().send();
 
       const response = await new RequestBuilder()
@@ -49,6 +63,7 @@ export default class SearchService {
         .build()
         .send();
 
+      await RedisCache.SetItem(key, JSON.stringify(response), 86400);
       return response;
     } catch (error) {
       return null;
