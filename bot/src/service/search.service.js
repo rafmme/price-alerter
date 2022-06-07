@@ -18,7 +18,7 @@ export default class SearchService {
       const cacheResponse = await RedisCache.GetItem(key);
 
       if (userId) {
-        await RedisCache.SetItem(`ls_${userId}`, key, 60 * 60 * 2);
+        await RedisCache.SetItem(`ls_${userId}`, key, 86400 * 1);
       }
 
       if (cacheResponse && ns === false) {
@@ -39,7 +39,7 @@ export default class SearchService {
         .build()
         .send();
 
-      await RedisCache.SetItem(key, JSON.stringify(response), 60 * 60 * 2);
+      await RedisCache.SetItem(key, JSON.stringify(response), 60 * 60 * 7);
       return response;
     } catch (error) {
       return null;

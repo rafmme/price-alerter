@@ -8,7 +8,7 @@ module.exports = {
         unique: true,
       },
       telegramId: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
         allowNull: false,
         unique: true,
         primaryKey: true,

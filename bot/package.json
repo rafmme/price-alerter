@@ -45,7 +45,6 @@
     "pg-hstore": "^2.3.3",
     "pingmydyno": "^1.5.1",
     "redis": "^3.0.2",
-    "sendmail": "^1.6.1",
     "sequelize": "^6.3.5",
     "sequelize-cli": "^6.2.0"
   },

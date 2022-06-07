@@ -34,10 +34,10 @@ export default class BotOps {
 
       if (userExist) {
         TelegramBotHandler.sendMessage(chatId, constants.oldUserStartText(name), msgOptions);
-      } else {
-        await UsersService.create({ name, telegramId: chatId });
-        TelegramBotHandler.sendMessage(chatId, constants.newUserStartText(name), msgOptions);
+        return;
       }
+      await UsersService.create({ name, telegramId: chatId });
+      TelegramBotHandler.sendMessage(chatId, constants.newUserStartText(name), msgOptions);
     });
   }
 
@@ -172,7 +172,9 @@ export default class BotOps {
         msg.text.startsWith('/stopalert') ||
         msg.text.startsWith('/startalert') ||
         msg.text.startsWith('/deletealert') ||
-        msg.text.startsWith('/viewalerts')
+        msg.text.startsWith('/viewalerts') ||
+        msg.text.startsWith('/viewactivealerts') ||
+        msg.text.startsWith('/viewstoppedalerts')
       ) {
         return;
       }

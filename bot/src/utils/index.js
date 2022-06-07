@@ -118,8 +118,8 @@ export default class Util {
   static showUserAlertsText(title, listOfAlerts) {
     let alertsText = '';
 
-    if (listOfAlerts.length < 1 || !listOfAlerts) {
-      return 'You have no alert setup yet.';
+    if (!listOfAlerts || listOfAlerts.length < 1) {
+      return 'No alert found.';
     }
 
     listOfAlerts.forEach((alert) => {

@@ -109,7 +109,7 @@ export default class TelegramBotHandler {
    * @static
    * @description
    */
-  static async init() {
+  static init() {
     BotOps.execute(this);
   }
 }
