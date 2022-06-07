@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import TelegramBot from 'node-telegram-bot-api';
+import RedisCache from '../cache/redis';
 import Util from '../utils';
 import BotOps from './botOps';
 
@@ -81,17 +82,25 @@ export default class TelegramBotHandler {
       return;
     }
 
-    this.on('callback_query', (message) => {
+    this.on('callback_query', async (message) => {
       const msg = message.message;
       const currentPage = message.data;
       const divider = 5;
-      const contentsList = currentPage === 1 ? list.slice(0, divider) : list.slice(divider * (currentPage - 1), divider * currentPage);
-      const text = Util.showProductsListText(title, contentsList);
+
+      const cacheKey = await RedisCache.GetItem(`ls_s${msg.chat.id}`);
+      const searchResultString = await RedisCache.GetItem(cacheKey);
+      const userLastSearchResult = cacheKey && searchResultString ? JSON.parse(searchResultString) : [];
+      const listOfProducts = list || userLastSearchResult.products;
+
+      const contentsList = currentPage === 1 ? listOfProducts.slice(0, divider) : listOfProducts.slice(divider * (currentPage - 1), divider * currentPage);
+      const text = Util.showProductsListText(title || `${userLastSearchResult.message}\n\nI found ${userLastSearchResult.count} item(s).`, contentsList);
+
       const editOptions = {
-        ...Util.getPagination(Number.parseInt(currentPage, 10), pages),
+        ...Util.getPagination(Number.parseInt(currentPage, 10), pages, msg.message_id),
         chat_id: msg.chat.id,
         message_id: msg.message_id,
       };
+
       this.GetInstance().bot.editMessageText(text, editOptions);
     });
   }

@@ -18,12 +18,11 @@ export default class BotOps {
     const re = /^\/start$/;
 
     TelegramBotHandler.onText(re, async (msg) => {
-      const telegramId = msg.from.id;
       const chatId = msg.chat.id;
       const name = `${msg.from.first_name}`;
       const user = await UsersService.findOne({
         where: {
-          telegramId,
+          telegramId: chatId,
         },
       });
       const msgOptions = {
@@ -32,7 +31,7 @@ export default class BotOps {
       };
 
       if (!user) {
-        await UsersService.create({ name, telegramId });
+        await UsersService.create({ name, telegramId: chatId });
         TelegramBotHandler.sendMessage(chatId, constants.newUserStartText(name), msgOptions);
       } else {
         TelegramBotHandler.sendMessage(chatId, constants.oldUserStartText(name), msgOptions);
@@ -128,7 +127,7 @@ export default class BotOps {
 
         switch (action) {
           case 'SEARCH':
-            response = await SearchService.findAll(msg.text);
+            response = await SearchService.findAll(msg.text, chatId);
 
             if (!response || response.count < 1) {
               TelegramBotHandler.sendMessage(chatId, `Sorry, No Product found. Try refining your search word. 😔`, msgOptions);
@@ -139,7 +138,7 @@ export default class BotOps {
             TelegramBotHandler.sendMessage(
               chatId,
               Util.showProductsListText(`${response.message}\n\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
-              Util.getPagination(1, pages),
+              Util.getPagination(1, pages, msg.message_id),
             );
             TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
             break;
@@ -179,7 +178,7 @@ export default class BotOps {
         return;
       }
 
-      const response = await SearchService.findAll(msg.text);
+      const response = await SearchService.findAll(msg.text, chatId);
 
       if (!response || response.count < 1) {
         TelegramBotHandler.sendMessage(chatId, `Sorry, No Product found. Try refining your search word. 😔`, msgOptions);
@@ -191,7 +190,7 @@ export default class BotOps {
       TelegramBotHandler.sendMessage(
         chatId,
         Util.showProductsListText(`${response.message}\n\nI found ${response.count} item(s).`, response.products.slice(0, divider)),
-        Util.getPagination(1, pages),
+        Util.getPagination(1, pages, msg.message_id),
       );
       TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
     });

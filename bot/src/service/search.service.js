@@ -12,10 +12,14 @@ const { BACKEND_API: baseUrl } = process.env;
  * @classdesc
  */
 export default class SearchService {
-  static async findAll(word) {
+  static async findAll(word, userId) {
     try {
       const key = word.toLowerCase();
       const cacheResponse = await RedisCache.GetItem(key);
+
+      if (userId) {
+        await RedisCache.SetItem(`ls_${userId}`, key, 60 * 60 * 2);
+      }
 
       if (cacheResponse) {
         return JSON.parse(cacheResponse);
@@ -35,7 +39,7 @@ export default class SearchService {
         .build()
         .send();
 
-      await RedisCache.SetItem(key, JSON.stringify(response), 3600);
+      await RedisCache.SetItem(key, JSON.stringify(response), 60 * 60 * 2);
       return response;
     } catch (error) {
       return null;
