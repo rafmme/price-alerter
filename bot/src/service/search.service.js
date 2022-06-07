@@ -12,7 +12,7 @@ const { BACKEND_API: baseUrl } = process.env;
  * @classdesc
  */
 export default class SearchService {
-  static async findAll(word, userId) {
+  static async findAll(word, userId, ns = false) {
     try {
       const key = word.toLowerCase();
       const cacheResponse = await RedisCache.GetItem(key);
@@ -21,7 +21,7 @@ export default class SearchService {
         await RedisCache.SetItem(`ls_${userId}`, key, 60 * 60 * 2);
       }
 
-      if (cacheResponse) {
+      if (cacheResponse && ns === false) {
         return JSON.parse(cacheResponse);
       }
 

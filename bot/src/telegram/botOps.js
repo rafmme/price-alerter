@@ -45,46 +45,60 @@ export default class BotOps {
    * @param {Function} TelegramBotHandler
    */
   static onBotCommands(TelegramBotHandler) {
+    const msgOptions = {
+      reply_to_message_id: '',
+      parse_mode: 'HTML',
+    };
     TelegramBotHandler.onText(/^\/help$/, async (msg) => {
       const chatId = msg.chat.id;
-      TelegramBotHandler.sendMessage(chatId, constants.helpText, {
-        reply_to_message_id: msg.message_id,
-        parse_mode: 'HTML',
-      });
+      msgOptions.reply_to_message_id = msg.message_id;
+      TelegramBotHandler.sendMessage(chatId, constants.helpText, msgOptions);
     });
 
     TelegramBotHandler.onText(/^\/search$/, async (msg) => {
       const chatId = msg.chat.id;
+      msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'SEARCH', 60 * 5);
       TelegramBotHandler.sendMessage(
         chatId,
         'Please enter the Product name within the next 5 minutes.\nFor example: Nokia Phone\nTo specify price range too, send Nokia Phone@20,000-70,000',
+        msgOptions,
       );
     });
 
     TelegramBotHandler.onText(/^\/setalert$/, async (msg) => {
       const chatId = msg.chat.id;
+      msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'SET_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the Alert details within the next 5 minutes.\nFor example: Nokia Phone@20,000-70,000\ni.e Name of Product@Price-Range');
+      TelegramBotHandler.sendMessage(
+        chatId,
+        'Please enter the Alert details within the next 5 minutes.\nFor example: Nokia Phone@20,000-70,000\ni.e Name of Product@Price-Range',
+        msgOptions,
+      );
     });
     TelegramBotHandler.onText(/^\/stopalert$/, async (msg) => {
       const chatId = msg.chat.id;
+      msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'STOP_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want stopped within the next 5 minutes.\nFor example: `02334`');
+      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want stopped within the next 5 minutes.\nFor example: `02334`', msgOptions);
     });
     TelegramBotHandler.onText(/^\/startalert$/, async (msg) => {
       const chatId = msg.chat.id;
+      msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'START_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want restarted within the next 5 minutes.\nFor example: `02334`');
+      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want restarted within the next 5 minutes.\nFor example: `02334`', msgOptions);
     });
     TelegramBotHandler.onText(/^\/deletealert$/, async (msg) => {
       const chatId = msg.chat.id;
+      msgOptions.reply_to_message_id = msg.message_id;
       await RedisCache.SetItem(chatId, 'DELETE_ALERT', 60 * 5);
-      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want deleted within the next 5 minutes.\nFor example: `02334`');
+      TelegramBotHandler.sendMessage(chatId, 'Please enter the ID of the Alert you want deleted within the next 5 minutes.\nFor example: `02334`', msgOptions);
     });
     TelegramBotHandler.onText(/^\/viewalerts$/, async (msg) => {
       const chatId = msg.chat.id;
-      TelegramBotHandler.sendMessage(chatId, 'All alerts');
+      msgOptions.reply_to_message_id = msg.message_id;
+
+      TelegramBotHandler.sendMessage(chatId, 'All alerts', msgOptions);
     });
   }
 

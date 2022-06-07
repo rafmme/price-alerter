@@ -87,7 +87,7 @@ export default class TelegramBotHandler {
       const currentPage = message.data;
       const divider = 5;
 
-      const cacheKey = await RedisCache.GetItem(`ls_s${msg.chat.id}`);
+      const cacheKey = await RedisCache.GetItem(`ls_${msg.chat.id}`);
       const searchResultString = await RedisCache.GetItem(cacheKey);
       const userLastSearchResult = cacheKey && searchResultString ? JSON.parse(searchResultString) : [];
       const listOfProducts = list || userLastSearchResult.products;
