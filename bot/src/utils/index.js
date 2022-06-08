@@ -42,7 +42,7 @@ export default class Util {
    * @param {Number} current
    * @param {Number} maxpage
    */
-  static getPagination(current, maxpage, msgId) {
+  static getPagination(current, maxpage) {
     const keys = [];
 
     if (current > maxpage || current === 0)
@@ -70,7 +70,6 @@ export default class Util {
       });
 
     return {
-      reply_to_message_id: msgId,
       parse_mode: 'HTML',
       reply_markup: JSON.stringify({
         inline_keyboard: [keys],

@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import morgan from 'morgan';
 import pingmydyno from 'pingmydyno';
+import Cron from './cron';
 import TelegramBotHandler from './telegram';
 
 dotenv.config();
@@ -22,6 +23,9 @@ app.get('/', async (req, res) => {
   });
 });
 
+TelegramBotHandler.init();
+Cron.runJobs();
+
 if (!module.parent) {
   app.listen(PORT, () => {
     if (PING_DYNO && (PING_DYNO === 'yes' || PING_DYNO === 'allow' || PING_DYNO === 'true')) {
@@ -34,7 +38,5 @@ if (!module.parent) {
     console.log(`App is live on ${PORT}`);
   });
 }
-
-TelegramBotHandler.init();
 
 export default app;

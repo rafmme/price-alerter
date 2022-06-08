@@ -96,7 +96,7 @@ export default class TelegramBotHandler {
       const text = Util.showProductsListText(title || `${userLastSearchResult.message}\n\nI found ${userLastSearchResult.count} item(s).`, contentsList);
 
       const editOptions = {
-        ...Util.getPagination(Number.parseInt(currentPage, 10), pages, msg.message_id),
+        ...Util.getPagination(Number.parseInt(currentPage, 10), pages),
         chat_id: msg.chat.id,
         message_id: msg.message_id,
       };
