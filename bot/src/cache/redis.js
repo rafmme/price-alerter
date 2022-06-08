@@ -73,6 +73,10 @@ export default class RedisCache {
    */
   static async SetItem(key, value, ttl) {
     try {
+      if (!value || !key) {
+        return;
+      }
+
       await this.GetInstance().setAsync(key, value);
       await this.GetInstance().expire(key, ttl);
     } catch (error) {

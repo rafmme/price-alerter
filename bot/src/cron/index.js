@@ -25,7 +25,7 @@ export default class Cron {
             const { telegramId, term } = alert;
             const response = await SearchService.findAll(term, telegramId, true);
 
-            if (response || response.count < 1) {
+            if (response && response.count < 1) {
               const text = Util.showAlertsProductsListText(
                 `I have found <i>${response.count}</i> deals on <i>"${term}"</i> that I think you should have a look at.`,
                 response.products,
