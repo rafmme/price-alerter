@@ -22,21 +22,19 @@ export default class Cron {
           });
 
           alerts.forEach(async (alert) => {
-            const divider = 10;
             const { telegramId, term } = alert;
             const response = await SearchService.findAll(term, telegramId, true);
 
             if (response || response.count < 1) {
-              const pages = response.products.length % divider === 0 ? response.products.length / divider : Number.parseInt(response.products.length / divider, 10) + 1;
-              TelegramBotHandler.sendMessage(
-                telegramId,
-                Util.showProductsListText(
-                  `I have found <i>${response.count}</i> deals on <i>"${term}"</i> that I think you should have a look at.`,
-                  response.products.slice(0, divider),
-                ),
-                Util.getPagination(1, pages),
+              const text = Util.showAlertsProductsListText(
+                `I have found <i>${response.count}</i> deals on <i>"${term}"</i> that I think you should have a look at.`,
+                response.products,
               );
-              TelegramBotHandler.handleCallbackQuery(response.products, pages, response.message);
+
+              const message = text.length > 4096 ? text.slice(0, 4096) : text;
+              TelegramBotHandler.sendMessage(telegramId, message, {
+                parse_mode: 'HTML',
+              });
             }
           });
         },
@@ -50,6 +48,6 @@ export default class Cron {
   }
 
   static runJobs() {
-    this.checkForDeals('0 */40 * * * *').start();
+    this.checkForDeals('0 0 */1 * * *').start();
   }
 }

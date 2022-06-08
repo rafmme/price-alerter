@@ -12,6 +12,9 @@ export default {
     const linkTag = tag.replace('/', '/tag_');
     return `<b>${name.toUpperCase()}</b>\n<b><i>- ${price} -</i></b>\n\n<a href="${linkTag}">${linkTag}</a>\n\n${url}\n\n\n`;
   },
+  productAlertText: ({ name, price, url }) => {
+    return `<b>${name.toUpperCase()}</b>\n${url}\n<b><i>- ${price} -</i></b>\n\n`;
+  },
   resultsText: (title, body) => {
     return `<b><i>${title}</i></b>\n\n${body}`;
   },

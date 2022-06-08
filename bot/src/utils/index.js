@@ -81,11 +81,25 @@ export default class Util {
     let productText = '';
 
     if (productsList.length < 1) {
-      return 'No results!';
+      return '';
     }
 
     productsList.forEach((product) => {
       productText += constants.productText(product);
+    });
+
+    return constants.resultsText(title, productText);
+  }
+
+  static showAlertsProductsListText(title, productsList) {
+    let productText = '';
+
+    if (productsList.length < 1) {
+      return '';
+    }
+
+    productsList.forEach((product) => {
+      productText += constants.productAlertText(product);
     });
 
     return constants.resultsText(title, productText);
