@@ -116,7 +116,7 @@ def scrape_konga_page(page_url: str, is_info: bool = False):
             }
 
         
-        products_section = WebDriverWait(driver, timeout=4).until(
+        products_section = WebDriverWait(driver, timeout=5).until(
             EC.presence_of_element_located((By.CSS_SELECTOR, '#mainContent > section:nth-of-type(3) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > ul:nth-of-type(1)'))
         )
         products_catalog = products_section.find_elements_by_css_selector('li')
