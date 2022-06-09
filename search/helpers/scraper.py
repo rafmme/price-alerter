@@ -1,5 +1,8 @@
 import requests, lxml, time
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
 from models.product import Product
@@ -32,8 +35,15 @@ def scrape_jumia_page(page_url: str, is_info: bool = False):
     if is_info:
         p_url = page_url
         p_name = soup.select('#jm > main > div:nth-child(1) > section > div > div.col10')[0].find('h1').text
-        p_price = soup.select('#jm > main > div:nth-child(1) > section > div > div.col10 > div:nth-child(2) > div:nth-child(3) > div > span')[0].text
-        img_url = soup.select('#imgs > a:nth-child(2)')[0].attrs['href']
+        p_price = ''
+
+        if len(soup.select('#jm > main > div:nth-child(1) > section > div > div.col10 > div:nth-child(2) > div:nth-child(2) > div > span')) >= 1:
+            p_price = soup.select('#jm > main > div:nth-child(1) > section > div > div.col10 > div:nth-child(2) > div:nth-child(2) > div > span')[0].text
+
+        elif len(soup.select('#jm > main > div:nth-child(1) > section > div > div.col10 > div:nth-child(2) > div:nth-child(3) > div > span')) >= 1:
+            p_price = soup.select('#jm > main > div:nth-child(1) > section > div > div.col10 > div:nth-child(2) > div:nth-child(3) > div > span')[0].text
+        
+        img_url = soup.select('#imgs > a:nth-of-type(1)')[0].attrs['href']
         p_info = soup.select('#jm > main > div:nth-child(2) > div.col12 > div > div.markup')[0].text
 
         return {
@@ -88,7 +98,6 @@ def scrape_konga_page(page_url: str, is_info: bool = False):
     products_list = []
     driver = webdriver.Chrome(options=options)
     driver.get(page_url)
-    time.sleep(5)
 
     try:
         if is_info:
@@ -106,9 +115,12 @@ def scrape_konga_page(page_url: str, is_info: bool = False):
                 'imageUrl': img_url
             }
 
-        products_section = driver.find_element_by_id('mainContent')
-        products_catalog = products_section.find_elements_by_css_selector('section:nth-of-type(3) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > ul:nth-of-type(1) > li')
-
+        
+        products_section = WebDriverWait(driver, timeout=4).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, '#mainContent > section:nth-of-type(3) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > section:nth-of-type(1) > ul:nth-of-type(1)'))
+        )
+        products_catalog = products_section.find_elements_by_css_selector('li')
+        
         for li in products_catalog:
             url = li.find_element_by_css_selector('div > div > div > a').get_attribute('href')
             image_url = li.find_element_by_css_selector('div > div > div:nth-of-type(1) > a:nth-of-type(1) > picture').find_element_by_tag_name('img').get_attribute('data-src')

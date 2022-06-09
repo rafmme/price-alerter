@@ -26,6 +26,7 @@ def search_for_product(word: str, price_range: str = ''):
         return format_response(200, 'Search Results for product `' + word + '`', 'products', result, len(result))
 
     except Exception as e:
+        print('::: SEARCH ERR :::', e)
         return format_response(500, 'An error occured on the server', 'products', [], 0)
         pass
 
@@ -37,6 +38,7 @@ def get_product_info(tag: str):
         return format_response(200, 'Product Info', 'product', result, None)
 
     except Exception as e:
+        print('::: ITEM_INFO ERR :::', e)
         return format_response(500, 'An error occured on the server', 'product', {}, None)
         pass
 
