@@ -20,13 +20,23 @@ def format_response(status_code: int, message: str, data_name: str, data, count)
     })
 
 
-def create_jumia_search_url(word: str):
+def create_jumia_search_url(word: str, price_range: str = ''):
     url = 'https://www.jumia.com.ng/catalog/?q=' + word
+
+    if price_range != '':
+        min_price, max_price = price_range_format(price_range)
+        url += '&price=' + str(min_price) + '-' + str(max_price)
+
     return url.replace(' ', '+')
  
 
-def create_konga_search_url(word: str):
+def create_konga_search_url(word: str, price_range: str = ''):
     url = 'https://konga.com/search?search=' + word
+
+    if price_range != '':
+        min_price, max_price = price_range_format(price_range)
+        url += '&max=' + str(max_price) + '&min=' + str(min_price)
+
     return url.replace(' ', '%20')
  
 
@@ -39,33 +49,42 @@ def get_product_price(price: str):
     return convert_price_to_float(product_price)
 
 
+def price_range_format(price_range: str = ''):
+    try:
+        price_list = str(price_range).split('-')
+        price = float(price_list[0].replace(' ','').replace(',', '').replace('#', ''))
+        price_to = 0
+
+        if len(price_list) == 1 and price:
+            return  0, price
+
+        if len(price_list) == 2 and price and price_list[1] == '':
+            return 0, price
+
+        else:
+            price_to = float(price_list[1].replace(' ','').replace(',', '').replace('#', ''))
+            if price > price_to:
+                price, price_to = price_to, price
+        return price, price_to
+
+    except Exception as e:
+        return ''
+        pass
+    
+
 def filter_by_price_range(products_list, price_range: str):
     try:
         filtered_products_list = []
-        price_from = 0
-        price_to = 0
-        price_list = price_range.split('-')
-        price = float(price_list[0].replace(' ','').replace(',', '').replace('#', ''))
-
-        if len(price_list) == 1 and price:
-            price_to = price
-        else:
-            price_from = price
-            price_to = float(price_list[1].replace(' ','').replace(',', '').replace('#', ''))
-
-            if price_from > price_to:
-                price_from, price_to = price_to, price_from
+        price_from, price_to = price_range_format(price_range)
 
         for product in products_list:
             product_price = get_product_price(product.get('price'))
-
             if product_price >= price_from and product_price <= price_to:
                 filtered_products_list.append(product)
-        
         filtered_products_list.sort(key=lambda x: get_product_price(x.get('price')))
         return filtered_products_list
-            
-    except ValueError:
+
+    except Exception as e:
         return products_list
         pass
 

@@ -143,8 +143,8 @@ def scrape_konga_page(page_url: str, is_info: bool = False):
 
    
 def get_products(word: str, price_range: str):
-    jumia_search_url = create_jumia_search_url(word)
-    konga_search_url= create_konga_search_url(word)
+    jumia_search_url = create_jumia_search_url(word, price_range)
+    konga_search_url= create_konga_search_url(word, price_range)
     jumia_thread = ThreadWithResult(target=scrape_jumia_page, args=(jumia_search_url, ))
     konga_thread = ThreadWithResult(target=scrape_konga_page, args=(konga_search_url, ))
 
