@@ -15,6 +15,7 @@ export default class SearchService {
   static async findAll(word, userId, ns = false) {
     try {
       const key = word.toLowerCase();
+      const url = `${baseUrl}/search`;
       const cacheResponse = await RedisCache.GetItem(key);
 
       if (userId) {
@@ -26,9 +27,6 @@ export default class SearchService {
       }
 
       const { query, price } = Util.createSearchUrl(word);
-      const url = `${baseUrl}/search`;
-      await new RequestBuilder().withURL(baseUrl).method('GET').queryParams({}).build().send();
-
       const response = await new RequestBuilder()
         .withURL(url)
         .method('GET')
@@ -49,14 +47,12 @@ export default class SearchService {
   static async findOne(tag) {
     try {
       const key = tag.toLowerCase();
+      const url = `${baseUrl}/info`;
       const cacheResponse = await RedisCache.GetItem(key);
 
       if (cacheResponse) {
         return JSON.parse(cacheResponse);
       }
-
-      const url = `${baseUrl}/info`;
-      await new RequestBuilder().withURL(baseUrl).method('GET').queryParams({}).build().send();
 
       const response = await new RequestBuilder()
         .withURL(url)

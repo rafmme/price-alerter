@@ -293,6 +293,11 @@ export default class BotOps {
         return;
       }
 
+      if (msg.text.toLowerCase() === 'hi' || msg.text.toLowerCase() === 'hello' || msg.text.toLowerCase() === 'hey' || msg.text.toLowerCase() === 'help') {
+        TelegramBotHandler.sendMessage(chatId, constants.helpText, msgOptions);
+        return;
+      }
+
       const response = await SearchService.findAll(msg.text, chatId);
 
       if (!response || response.count < 1) {

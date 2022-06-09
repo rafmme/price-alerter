@@ -48,6 +48,6 @@ export default class Cron {
   }
 
   static runJobs() {
-    this.checkForDeals('0 0 */1 * * *').start();
+    this.checkForDeals('0 */40 * * * *').start();
   }
 }

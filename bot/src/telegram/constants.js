@@ -18,7 +18,7 @@ export default {
   resultsText: (title, body) => {
     return `<b><i>${title}</i></b>\n\n${body}`;
   },
-  helpText: 'Help is on the way',
+  helpText: `I'm a bot that scrapes the two major e-commerce websites in Nigeria (Konga, Jumia) to find specific products (deals) that fall within a given price range & notifies users with the link to the product on the e-commerce website.\n\nTo search for a product/item, send the item name. For example: <b><i>Iphone 12</i></b>\n\nTo specify price range for the search, send <b><i>'Item Name@start_price-end_price'</i></b>\nFor example: <b><i>Iphone 12@120,000-300,000</i></b>\n\nAlso,do choose from the menu list for other bot commands to perform other operations like setting a price alert etc.`,
   alertText: ({ id, term, isOn }) => {
     const isActive = isOn ? 'ON' : 'OFF';
     return `<b>Alert ID: <i>${id}</i></b>\n<b>Status: <i>${isActive}</i></b>\n<b>Term: <i>${term}</i></b>\n\n`;
