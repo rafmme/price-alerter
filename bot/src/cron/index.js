@@ -32,15 +32,31 @@ export default class Cron {
               };
               await AlertsService.update({ where: alertData }, { isOn: false });
               const text = Util.showAlertsProductsListText(
-                `I have found <i>${response.count}</i> deals on <i>"${term}"</i> that I think you should have a look at.`,
+                `I have found <i>${response.count}</i> deal(s) on <i>"${term}"</i> that I think you should have a look at.`,
                 response.products,
               );
 
-              const message = text.length > 4096 ? text.slice(0, 4096) : text;
-              TelegramBotHandler.sendMessage(telegramId, message, {
-                reply_to_message_id: messageId,
-                parse_mode: 'HTML',
-              });
+              if (text.length <= 4096) {
+                TelegramBotHandler.sendMessage(telegramId, text, {
+                  reply_to_message_id: messageId,
+                  parse_mode: 'HTML',
+                });
+                return;
+              }
+
+              for (let index = 0; index < text.length; index += 4096) {
+                if (index === 0) {
+                  TelegramBotHandler.sendMessage(telegramId, text.slice(0, 4096), {
+                    reply_to_message_id: messageId,
+                    parse_mode: 'HTML',
+                  });
+                } else {
+                  TelegramBotHandler.sendMessage(telegramId, text.slice(index, index + 4096), {
+                    reply_to_message_id: messageId,
+                    parse_mode: 'HTML',
+                  });
+                }
+              }
             }
           });
         },
