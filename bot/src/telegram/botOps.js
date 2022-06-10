@@ -238,6 +238,7 @@ export default class BotOps {
             if (alertExist) {
               TelegramBotHandler.sendMessage(chatId, `❌ Oops! it looks like you already have an alert with the same term <b><i>${msg.text}</i></b>.`, msgOptions);
             } else {
+              alertData.messageId = msg.message_id;
               await AlertsService.create(alertData);
               TelegramBotHandler.sendMessage(chatId, `👍🏾 Cool, I will notify you when I find deals on <b><i>${msg.text}</i></b>.`, msgOptions);
             }

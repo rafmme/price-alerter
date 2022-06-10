@@ -11,6 +11,10 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      messageId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       term: {
         type: Sequelize.STRING,
         allowNull: false,

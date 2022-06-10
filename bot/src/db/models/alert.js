@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Alert.init(
     {
       telegramId: DataTypes.INTEGER,
+      messageId: DataTypes.INTEGER,
       term: DataTypes.STRING,
       isOn: DataTypes.BOOLEAN,
     },

@@ -22,7 +22,7 @@ export default class Cron {
           });
 
           alerts.forEach(async (alert) => {
-            const { telegramId, term, id } = alert;
+            const { telegramId, term, id, messageId } = alert;
             const response = await SearchService.findAll(term, telegramId, true);
 
             if (response && response.count >= 1) {
@@ -38,6 +38,7 @@ export default class Cron {
 
               const message = text.length > 4096 ? text.slice(0, 4096) : text;
               TelegramBotHandler.sendMessage(telegramId, message, {
+                reply_to_message_id: messageId,
                 parse_mode: 'HTML',
               });
             }
