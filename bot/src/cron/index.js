@@ -22,10 +22,15 @@ export default class Cron {
           });
 
           alerts.forEach(async (alert) => {
-            const { telegramId, term } = alert;
+            const { telegramId, term, id } = alert;
             const response = await SearchService.findAll(term, telegramId, true);
 
-            if (response && response.count < 1) {
+            if (response && response.count >= 1) {
+              const alertData = {
+                id: Number.parseInt(id, 10),
+                telegramId,
+              };
+              await AlertsService.update({ where: alertData }, { isOn: false });
               const text = Util.showAlertsProductsListText(
                 `I have found <i>${response.count}</i> deals on <i>"${term}"</i> that I think you should have a look at.`,
                 response.products,
@@ -48,6 +53,6 @@ export default class Cron {
   }
 
   static runJobs() {
-    this.checkForDeals('0 */40 * * * *').start();
+    this.checkForDeals('0 */20 * * * *').start();
   }
 }
