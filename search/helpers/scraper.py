@@ -144,19 +144,19 @@ def scrape_konga_page(page_url: str, is_info: bool = False):
    
 def get_products(word: str, price_range: str):
     jumia_search_url = create_jumia_search_url(word, price_range)
-    konga_search_url= create_konga_search_url(word, price_range)
+    #konga_search_url= create_konga_search_url(word, price_range)
     jumia_thread = ThreadWithResult(target=scrape_jumia_page, args=(jumia_search_url, ))
-    konga_thread = ThreadWithResult(target=scrape_konga_page, args=(konga_search_url, ))
+    #konga_thread = ThreadWithResult(target=scrape_konga_page, args=(konga_search_url, ))
 
     jumia_thread.start()
-    konga_thread.start()
+    #konga_thread.start()
     jumia_thread.join()
-    konga_thread.join()
+    #konga_thread.join()
     jumia_data = jumia_thread.result
-    konga_data = konga_thread.result
+    #konga_data = konga_thread.result
     
 
-    products = filter_by_price_range(konga_data + jumia_data, price_range) 
+    products = filter_by_price_range(jumia_data, price_range) 
 
     return products
 
